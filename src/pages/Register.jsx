@@ -34,6 +34,7 @@ export default function Register() {
       return;
     }
 
+    // Send only the required 6 registration fields (do not send confirmPassword to backend)
     const payload = {
       name: form.name.trim(),
       studentClass: form.studentClass.trim(),
