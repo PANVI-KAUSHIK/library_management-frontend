@@ -1,11 +1,8 @@
 import axios from 'axios';
 
-// In production on Vercel, use same-origin relative API base URL '/api'
-// In local development, preserve fallback to http://localhost:8081/api
-const isProduction = import.meta.env.PROD;
-const baseURL = isProduction
-  ? '/api'
-  : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:8081/api');
+// In production, use same-origin relative /api base URL so requests go through Vercel proxy.
+// For local development, keep http://localhost:8081/api.
+const baseURL = import.meta.env.PROD ? '/api' : 'http://localhost:8081/api';
 
 const api = axios.create({
   baseURL,
