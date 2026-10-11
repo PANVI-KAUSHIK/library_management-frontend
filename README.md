@@ -1,16 +1,65 @@
-# React + Vite
+# Library Management System - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A modern, responsive React single-page application (SPA) for managing library catalog, student members, and book issue/return operations.
 
-Currently, two official plugins are available:
+## Technology Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Framework**: React 19 + Vite
+- **Styling**: Tailwind CSS
+- **HTTP Client**: Axios (configured with `withCredentials: true` for HTTP sessions)
+- **Routing**: React Router v7
+- **Deployment**: Vercel (`vercel.json` same-origin API reverse proxy)
 
-## React Compiler
+## Project Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+├── public/              # Static public assets
+├── src/
+│   ├── components/      # UI components (Layout, Navigation, Alerts)
+│   ├── pages/           # Pages (Login, Register, Dashboard, Books, Members, IssueReturn)
+│   ├── api.js           # Axios instance with same-origin /api proxy configuration
+│   ├── App.jsx          # Route definitions and session authentication listener
+│   ├── main.jsx         # Application entry point
+│   └── index.css        # Tailwind directives and design system tokens
+├── index.html           # SPA root HTML
+├── tailwind.config.cjs  # Tailwind CSS configuration
+├── vite.config.js       # Vite configuration
+└── vercel.json          # Production API proxy rewrite and SPA route fallback
+```
 
-## Expanding the Oxlint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Development Server
+
+```bash
+npm run dev
+```
+
+The frontend will run locally on `http://localhost:5173`. By default in development, API requests point to `http://localhost:8081/api`.
+
+### 3. Production Build
+
+```bash
+npm run build
+```
+
+The built production bundle is output to `dist/`.
+
+## Environment Variables
+
+- `VITE_BACKEND_URL`: *(Optional)* Backend API base URL for local development. Default: `http://localhost:8081/api`.
+  *(In production on Vercel, requests automatically route through relative `/api` via `vercel.json`).*
+
+## Production Deployment
+
+This repository is ready for deployment on **Vercel**:
+- Root Directory: `.`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- The included `vercel.json` handles both reverse-proxying `/api/:path*` to the backend and rewriting SPA routes to `/index.html`.
