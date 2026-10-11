@@ -29,9 +29,23 @@ export default function Register() {
       return;
     }
 
+    if (form.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
+    const payload = {
+      name: form.name.trim(),
+      studentClass: form.studentClass.trim(),
+      section: form.section.trim(),
+      rollNo: form.rollNo.trim(),
+      username: form.username.trim(),
+      password: form.password
+    };
+
     setLoading(true);
     try {
-      await api.post('/auth/register', form);
+      await api.post('/auth/register', payload);
       alert('Registration successful! Please sign in.');
       navigate('/login');
     } catch (err) {
