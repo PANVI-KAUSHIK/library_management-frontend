@@ -7,25 +7,40 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [booksRes, membersRes, issuesRes] = await Promise.all([
-          api.get('/books/count'),
-          api.get('/members/count'),
-          api.get('/issues/count')
-        ]);
-        setStats({
-          books: booksRes.data,
-          members: membersRes.data,
-          issued: issuesRes.data
-        });
-      } catch (err) {
-        setError('Failed to load dashboard stats');
-      } finally {
-        setLoading(false);
+  const fetchStats = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [booksRes, membersRes, issuesRes] = await Promise.all([
+        api.get('/books/count'),
+        api.get('/members/count'),
+        api.get('/issues/count')
+      ]);
+      setStats({
+        books: typeof booksRes.data === 'number' ? booksRes.data : parseInt(booksRes.data, 10) || 0,
+        members: typeof membersRes.data === 'number' ? membersRes.data : parseInt(membersRes.data, 10) || 0,
+        issued: typeof issuesRes.data === 'number' ? issuesRes.data : parseInt(issuesRes.data, 10) || 0
+      });
+    } catch (err) {
+      console.error('Failed to load dashboard statistics:', err);
+      const status = err.response?.status;
+      if (status === 401 || status === 403) {
+        setError('Session expired or unauthorized (HTTP ' + status + '). Please sign in again.');
+      } else if (status === 404) {
+        setError('Statistics endpoints not found (HTTP 404). Please verify backend routing.');
+      } else if (status >= 500) {
+        setError('Server temporarily unable to load metrics (HTTP ' + status + '). Please retry.');
+      } else if (err.code === 'ERR_NETWORK' || (err.message && err.message.toLowerCase().includes('network'))) {
+        setError('Network connectivity issue. Unable to connect to backend server.');
+      } else {
+        setError('Failed to load dashboard stats (HTTP ' + (status || 'Error') + ').');
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchStats();
   }, []);
 
@@ -38,14 +53,6 @@ export default function Dashboard() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
-        {error}
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center border-b border-gray-200 pb-4">
@@ -53,7 +60,28 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-900">Library Overview</h1>
           <p className="text-sm text-gray-500">Real-time statistics of books, registered members, and active loans</p>
         </div>
+        <button
+          onClick={fetchStats}
+          className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded cursor-pointer transition font-medium"
+        >
+          🔄 Refresh Stats
+        </button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg flex justify-between items-center shadow-sm">
+          <div>
+            <p className="font-semibold text-sm">Dashboard Notice</p>
+            <p className="text-xs mt-0.5">{error}</p>
+          </div>
+          <button
+            onClick={fetchStats}
+            className="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded text-xs font-semibold cursor-pointer transition"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
