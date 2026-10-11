@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-// Normalize baseURL so it always has the /api context path, regardless of trailing slashes
-let rawBaseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8081/api';
-rawBaseUrl = rawBaseUrl.trim().replace(/\/+$/, '');
-if (!rawBaseUrl.endsWith('/api')) {
-  rawBaseUrl += '/api';
-}
+// In production on Vercel, use same-origin relative API base URL '/api'
+// In local development, preserve fallback to http://localhost:8081/api
+const isProduction = import.meta.env.PROD;
+const baseURL = isProduction
+  ? '/api'
+  : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:8081/api');
 
 const api = axios.create({
-  baseURL: rawBaseUrl,
+  baseURL,
   withCredentials: true,
 });
 
